@@ -1,0 +1,27 @@
+[build-system]
+
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+
+name = "initial-client"
+version = "0.1.0"
+description = "Библиотека для внутреннего клиента"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+
+dependencies = [
+    "httpx>=0.28.1",
+    "PyJWT>=2.15.1"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/RideTrip-tour/internal_client"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.package.find]
+where = ["src"]
