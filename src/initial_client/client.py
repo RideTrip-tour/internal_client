@@ -1,5 +1,6 @@
 import logging
 import time
+from typing import Any
 
 import httpx
 import jwt
@@ -23,8 +24,8 @@ class InitialClient:
         service_token: str,
         gateway_name: str,
         access_token_expire_sec: int,
-        jwt_secret: str
-
+        jwt_secret: str,
+        timeout: float | httpx.Timeout = 10.0,
     ):
         if not hasattr(self, "client"):
             self.base_url = base_url
@@ -33,10 +34,9 @@ class InitialClient:
             self.gateway_name = gateway_name
             self.access_token_expire_sec = access_token_expire_sec
             self.jwt_secret = jwt_secret
-
             self.client = httpx.AsyncClient(
                 base_url=base_url,
-                timeout=10.0,
+                timeout=timeout,
             )
             logger.debug("Initial client initialized")
 
@@ -48,27 +48,50 @@ class InitialClient:
             "X-User-Context": user_context,
         }
 
-    def _build_user_context(self, claims: dict | None) -> str:
+    def _validate_claims(self, claims: dict[str, Any] | None) -> dict[str, Any]:
         if claims is None:
-            logger.error("Failed to build user context: user claims are not available")
-            raise RuntimeError("User claims are not available")
-        if not all(
-            required_claim in claims
-            for required_claim in ("id", "is_active", "is_superuser")
-        ):
-            logger.error(
-                "Failed to build user context: required user claims are not available"
+            raise ValueError("User claims are not available")
+
+        if not isinstance(claims, dict):
+            raise TypeError("User claims must be a dictionary")
+
+        required_claims = ("id", "is_active", "is_superuser")
+        missing_claims = [
+            key for key in required_claims
+            if key not in claims
+        ]
+
+        if missing_claims:
+            raise ValueError(
+                f"Required user claims are missing: {', '.join(missing_claims)}"
             )
-            raise RuntimeError("Required user claims are not available")
-        data = {
+
+        if claims["id"] is None or isinstance(claims["id"], bool):
+            raise ValueError("Claim 'id' must be a valid identifier")
+
+        if not isinstance(claims["is_active"], bool):
+            raise TypeError("Claim 'is_active' must be a boolean")
+
+        if not isinstance(claims["is_superuser"], bool):
+            raise TypeError("Claim 'is_superuser' must be a boolean")
+
+        return claims
+
+    def _build_token_payload(self, claims: dict[str, Any]) -> dict[str, Any]:
+        return {
             "sub": str(claims["id"]),
-            "is_active": bool(claims["is_active"]),
-            "is_superuser": bool(claims["is_superuser"]),
+            "is_active": claims["is_active"],
+            "is_superuser": claims["is_superuser"],
             "aud": self.gateway_name,
             "exp": int(time.time()) + self.access_token_expire_sec,
         }
+
+    def _build_user_context(self, claims: dict[str, Any] | None) -> str:
+        payload = self._build_token_payload(
+            self._validate_claims(claims)
+        )
         return jwt.encode(
-            data,
+            payload,
             self.jwt_secret,
             algorithm="HS256",
         )
@@ -91,10 +114,10 @@ class InitialClient:
 
         try:
             response = await self.client.request(
-            method,
+                method,
                 path,
                 headers=self._get_headers(user_context),
-                params=params
+                params=params,
             )
             elapsed = time.monotonic() - started_at
             response.raise_for_status()
@@ -116,6 +139,20 @@ class InitialClient:
                 elapsed,
             )
             raise
+
+    async def request(
+        self,
+        method: str,
+        path: str,
+        user_context: str,
+        params: dict[str, int] | None = None,
+    ) -> httpx.Response:
+        return await self._request(
+            method=method,
+            path=path,
+            user_context=user_context,
+            params=params,
+        )
 
     async def close(self) -> None:
         await self.client.aclose()
