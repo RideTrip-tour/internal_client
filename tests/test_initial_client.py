@@ -23,12 +23,15 @@ def test_initial_client_is_singleton(initial_client):
 
 
 def test_get_headers(initial_client):
-    headers = initial_client._get_headers("user-context")
+    headers = initial_client._get_headers(
+        user_context="user-context", request_id="request-id"
+    )
 
     assert headers == {
         "X-Service-ID": "service_id",
         "X-Service-Token": "service_token",
         "X-User-Context": "user-context",
+        "X-Request_ID": "request-id",
     }
 
 def test_build_user_context_valid_claims(initial_client):
@@ -67,9 +70,8 @@ def test_build_user_context_valid_claims(initial_client):
     ],
 )
 def test_build_user_context_invalid_claims(initial_client, claims):
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ValueError):
         initial_client._build_user_context(claims)
-
 
 
 @pytest.mark.anyio
@@ -85,6 +87,7 @@ async def test_request_success(initial_client):
         method="GET",
         path="/test",
         user_context="test-token",
+        request_id="request-id",
         params={"id": 123},
     )
 
@@ -98,6 +101,8 @@ async def test_request_success(initial_client):
             "X-Service-ID": "service_id",
             "X-Service-Token": "service_token",
             "X-User-Context": "test-token",
+            "X-Request_ID": "request-id",
+
         },
         params={"id": 123},
     )
@@ -115,6 +120,7 @@ async def test_request_http_error(initial_client):
             method="GET",
             path="/test",
             user_context="test-token",
+            request_id="request-id",
         )
 
 
@@ -129,6 +135,7 @@ async def test_request_connection_error(initial_client):
             method="GET",
             path="/test",
             user_context="test-token",
+            request_id="request-id",
         )
 
 
@@ -143,7 +150,30 @@ async def test_request_timeout(initial_client):
             method="GET",
             path="/test",
             user_context="test-token",
+            request_id="request-id",
         )
+
+@pytest.mark.anyio
+async def test_request_passes_request_id(initial_client):
+    initial_client._request = AsyncMock(
+        return_value=httpx.Response(200),
+    )
+
+    await initial_client.request(
+        method="GET",
+        path="/test",
+        user_context="test-token",
+        request_id="request-id",
+        params={"id": 123},
+    )
+
+    initial_client._request.assert_awaited_once_with(
+        method="GET",
+        path="/test",
+        user_context="test-token",
+        request_id="request-id",
+        params={"id": 123},
+    )
 
 
 @pytest.mark.anyio

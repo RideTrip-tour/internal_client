@@ -41,11 +41,13 @@ class InitialClient:
             logger.debug("Initial client initialized")
 
 
-    def _get_headers(self, user_context: str) -> dict[str, str]:
+    def _get_headers(self, user_context: str,  request_id: str) -> dict[str, str]:
         return {
             "X-Service-ID": self.service_id,
             "X-Service-Token": self.service_token,
             "X-User-Context": user_context,
+            "X-Request_ID": request_id,
+            
         }
 
     def _validate_claims(self, claims: dict[str, Any] | None) -> dict[str, Any]:
@@ -101,6 +103,7 @@ class InitialClient:
         method: str,
         path: str,
         user_context: str,
+        request_id: str,
         params: dict[str, int] | None = None,
     ) -> httpx.Response:
         
@@ -116,7 +119,9 @@ class InitialClient:
             response = await self.client.request(
                 method,
                 path,
-                headers=self._get_headers(user_context),
+                headers=self._get_headers(
+                    user_context=user_context, request_id=request_id,
+                ),
                 params=params,
             )
             elapsed = time.monotonic() - started_at
@@ -145,12 +150,14 @@ class InitialClient:
         method: str,
         path: str,
         user_context: str,
+        request_id: str,
         params: dict[str, int] | None = None,
     ) -> httpx.Response:
         return await self._request(
             method=method,
             path=path,
             user_context=user_context,
+            request_id=request_id,
             params=params,
         )
 
