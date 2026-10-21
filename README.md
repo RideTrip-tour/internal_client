@@ -20,11 +20,17 @@
 - PyJWT
 
 ## Установка
+
 Библиотека устанавливается из приватного репозитория или локального проекта, используйте соответствующий адрес или путь.
 ```bash
-pip install "git+ssh://git@<git-server>/<group>/initial-client.gitt@<tag>"
+pip install "git+ssh://git@github.com/RideTrip-tour/internal_client.git@<tag>"
 ```
-Замените <git-server> адресом Git-сервера, <group> — названием группы или организации, а <tag> — нужной версией библиотеки.
+<tag> — нужной версией библиотеки.
+
+В `requirements.txt` сервиса добавить:
+```
+initial-client @ git+ssh://git@github.com/RideTrip-tour/internal_client.git
+```
 
 ### Проверка установки
 После установки проверьте, что библиотека импортируется:
