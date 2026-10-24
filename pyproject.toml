@@ -23,5 +23,5 @@ dependencies = [
 [tool.setuptools]
 package-dir = {"" = "src"}
 
-[tool.setuptools.package.find]
+[tool.setuptools.packages.find]
 where = ["src"]
