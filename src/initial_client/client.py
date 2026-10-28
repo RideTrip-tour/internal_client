@@ -102,6 +102,7 @@ class InitialClient:
         path: str,
         user_context: str,
         params: dict[str, int] | None = None,
+        json: dict[str, Any] | None = None
     ) -> httpx.Response:
         
         started_at = time.monotonic()
@@ -118,6 +119,7 @@ class InitialClient:
                 path,
                 headers=self._get_headers(user_context),
                 params=params,
+                json=json
             )
             elapsed = time.monotonic() - started_at
             response.raise_for_status()
@@ -146,12 +148,14 @@ class InitialClient:
         path: str,
         user_context: str,
         params: dict[str, int] | None = None,
+        json: dict[str, Any] | None = None,
     ) -> httpx.Response:
         return await self._request(
             method=method,
             path=path,
             user_context=user_context,
             params=params,
+            json=json
         )
 
     async def close(self) -> None:
