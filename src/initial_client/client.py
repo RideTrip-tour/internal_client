@@ -5,7 +5,6 @@ from typing import Any
 import httpx
 import jwt
 
-
 logger = logging.getLogger(__name__)
 
 
