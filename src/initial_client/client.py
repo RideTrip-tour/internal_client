@@ -39,14 +39,12 @@ class InitialClient:
             )
             logger.debug("Initial client initialized")
 
-
-    def _get_headers(self, user_context: str,  request_id: str) -> dict[str, str]:
+    def _get_headers(self, user_context: str, request_id: str) -> dict[str, str]:
         return {
             "X-Service-ID": self.service_id,
             "X-Service-Token": self.service_token,
             "X-User-Context": user_context,
             "X-Request-ID": request_id,
-            
         }
 
     def _validate_claims(self, claims: dict[str, Any] | None) -> dict[str, Any]:
@@ -57,10 +55,7 @@ class InitialClient:
             raise TypeError("User claims must be a dictionary")
 
         required_claims = ("id", "is_active", "is_superuser")
-        missing_claims = [
-            key for key in required_claims
-            if key not in claims
-        ]
+        missing_claims = [key for key in required_claims if key not in claims]
 
         if missing_claims:
             raise ValueError(
@@ -88,9 +83,7 @@ class InitialClient:
         }
 
     def _build_user_context(self, claims: dict[str, Any] | None) -> str:
-        payload = self._build_token_payload(
-            self._validate_claims(claims)
-        )
+        payload = self._build_token_payload(self._validate_claims(claims))
         return jwt.encode(
             payload,
             self.jwt_secret,
@@ -104,9 +97,9 @@ class InitialClient:
         user_context: str,
         request_id: str,
         params: dict[str, int] | None = None,
-        json: dict[str, Any] | None = None
+        json: dict[str, Any] | None = None,
     ) -> httpx.Response:
-        
+
         started_at = time.monotonic()
 
         logger.info(
@@ -120,10 +113,11 @@ class InitialClient:
                 method,
                 path,
                 headers=self._get_headers(
-                    user_context=user_context, request_id=request_id,
+                    user_context=user_context,
+                    request_id=request_id,
                 ),
                 params=params,
-                json=json
+                json=json,
             )
             elapsed = time.monotonic() - started_at
             response.raise_for_status()
@@ -161,7 +155,7 @@ class InitialClient:
             user_context=user_context,
             request_id=request_id,
             params=params,
-            json=json
+            json=json,
         )
 
     async def close(self) -> None:
