@@ -89,6 +89,7 @@ async def test_request_success(initial_client):
         user_context="test-token",
         request_id="request-id",
         params={"id": 123},
+        json=None,
     )
 
     assert result.status_code == 200
@@ -105,6 +106,7 @@ async def test_request_success(initial_client):
 
         },
         params={"id": 123},
+        json=None,
     )
 
 @pytest.mark.anyio
@@ -165,6 +167,7 @@ async def test_request_passes_request_id(initial_client):
         user_context="test-token",
         request_id="request-id",
         params={"id": 123},
+        json=None,
     )
 
     initial_client._request.assert_awaited_once_with(
@@ -173,6 +176,7 @@ async def test_request_passes_request_id(initial_client):
         user_context="test-token",
         request_id="request-id",
         params={"id": 123},
+        json=None,
     )
 
 
