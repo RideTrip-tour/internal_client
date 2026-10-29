@@ -31,7 +31,7 @@ def test_get_headers(initial_client):
         "X-Service-ID": "service_id",
         "X-Service-Token": "service_token",
         "X-User-Context": "user-context",
-        "X-Request_ID": "request-id",
+        "X-Request-ID": "request-id",
     }
 
 def test_build_user_context_valid_claims(initial_client):
@@ -89,6 +89,7 @@ async def test_request_success(initial_client):
         user_context="test-token",
         request_id="request-id",
         params={"id": 123},
+        json=None,
     )
 
     assert result.status_code == 200
@@ -101,10 +102,11 @@ async def test_request_success(initial_client):
             "X-Service-ID": "service_id",
             "X-Service-Token": "service_token",
             "X-User-Context": "test-token",
-            "X-Request_ID": "request-id",
+            "X-Request-ID": "request-id",
 
         },
         params={"id": 123},
+        json=None,
     )
 
 @pytest.mark.anyio
@@ -165,6 +167,7 @@ async def test_request_passes_request_id(initial_client):
         user_context="test-token",
         request_id="request-id",
         params={"id": 123},
+        json=None,
     )
 
     initial_client._request.assert_awaited_once_with(
@@ -173,6 +176,7 @@ async def test_request_passes_request_id(initial_client):
         user_context="test-token",
         request_id="request-id",
         params={"id": 123},
+        json=None,
     )
 
 

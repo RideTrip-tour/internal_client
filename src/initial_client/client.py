@@ -45,7 +45,7 @@ class InitialClient:
             "X-Service-ID": self.service_id,
             "X-Service-Token": self.service_token,
             "X-User-Context": user_context,
-            "X-Request_ID": request_id,
+            "X-Request-ID": request_id,
             
         }
 
@@ -104,6 +104,7 @@ class InitialClient:
         user_context: str,
         request_id: str,
         params: dict[str, int] | None = None,
+        json: dict[str, Any] | None = None
     ) -> httpx.Response:
         
         started_at = time.monotonic()
@@ -122,6 +123,7 @@ class InitialClient:
                     user_context=user_context, request_id=request_id,
                 ),
                 params=params,
+                json=json
             )
             elapsed = time.monotonic() - started_at
             response.raise_for_status()
@@ -151,6 +153,7 @@ class InitialClient:
         user_context: str,
         request_id: str,
         params: dict[str, int] | None = None,
+        json: dict[str, Any] | None = None,
     ) -> httpx.Response:
         return await self._request(
             method=method,
@@ -158,6 +161,7 @@ class InitialClient:
             user_context=user_context,
             request_id=request_id,
             params=params,
+            json=json
         )
 
     async def close(self) -> None:
