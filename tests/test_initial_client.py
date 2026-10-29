@@ -1,9 +1,9 @@
 import time
 from unittest.mock import AsyncMock
 
-import pytest
-import jwt
 import httpx
+import jwt
+import pytest
 
 from src.initial_client import InitialClient
 
