@@ -46,7 +46,7 @@ class InitialClient:
             "X-Service-ID": self.service_id,
             "X-Service-Token": self.service_token,
             "X-User-Context": user_context,
-            "X-Request_ID": request_id,
+            "X-Request-ID": request_id,
             
         }
 
