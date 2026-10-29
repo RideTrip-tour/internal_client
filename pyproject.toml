@@ -28,3 +28,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 initial_client = ["py.typed"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+addopts = "--cov=src --cov-report=term-missing"

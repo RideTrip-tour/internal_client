@@ -14,12 +14,12 @@ jobs:
   mypy:
     uses: RideTrip-tour/ci-templates/.github/workflows/python-mypy.yml@c5384ac2be0894e41b76dcf103d9f5ef79b32f44
     with:
-      mypy-target: app
+      mypy-target: src
 
   tests:
     uses: RideTrip-tour/ci-templates/.github/workflows/python-test.yml@c5384ac2be0894e41b76dcf103d9f5ef79b32f44
     with:
-      coverage-source: app
+      coverage-source: src
       coverage-min: 90
   
   notify:

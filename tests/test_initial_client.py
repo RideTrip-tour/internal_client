@@ -1,9 +1,9 @@
 import time
-from  unittest.mock import AsyncMock
+from unittest.mock import AsyncMock
 
-import pytest
-import jwt
 import httpx
+import jwt
+import pytest
 
 from src.initial_client import InitialClient
 
@@ -16,7 +16,7 @@ def test_initial_client_is_singleton(initial_client):
         gateway_name="gateway_name_2",
         access_token_expire_sec=100,
         jwt_secret="jwt_secret_2",
-        )
+    )
 
     assert initial_client is client
     assert client.service_id == "service_id"
@@ -31,15 +31,16 @@ def test_get_headers(initial_client):
         "X-Service-ID": "service_id",
         "X-Service-Token": "service_token",
         "X-User-Context": "user-context",
-        "X-Request_ID": "request-id",
+        "X-Request-ID": "request-id",
     }
+
 
 def test_build_user_context_valid_claims(initial_client):
     claims = {
         "id": 123,
         "is_active": True,
         "is_superuser": False,
-        }
+    }
 
     before = int(time.time())
     token = initial_client._build_user_context(claims)
@@ -80,7 +81,7 @@ async def test_request_success(initial_client):
         200,
         json={"ok": True},
         request=httpx.Request("GET", "http://localhost/test"),
-        )
+    )
     initial_client.client.request = AsyncMock(return_value=response)
 
     result = await initial_client._request(
@@ -89,6 +90,7 @@ async def test_request_success(initial_client):
         user_context="test-token",
         request_id="request-id",
         params={"id": 123},
+        json=None,
     )
 
     assert result.status_code == 200
@@ -101,18 +103,19 @@ async def test_request_success(initial_client):
             "X-Service-ID": "service_id",
             "X-Service-Token": "service_token",
             "X-User-Context": "test-token",
-            "X-Request_ID": "request-id",
-
+            "X-Request-ID": "request-id",
         },
         params={"id": 123},
+        json=None,
     )
+
 
 @pytest.mark.anyio
 async def test_request_http_error(initial_client):
     response = httpx.Response(
         500,
         request=httpx.Request("GET", "http://localhost/test"),
-        )
+    )
     initial_client.client.request = AsyncMock(return_value=response)
 
     with pytest.raises(httpx.HTTPStatusError):
@@ -127,7 +130,7 @@ async def test_request_http_error(initial_client):
 @pytest.mark.anyio
 async def test_request_connection_error(initial_client):
     initial_client.client.request = AsyncMock(
-    side_effect=httpx.ConnectError("Connection failed")
+        side_effect=httpx.ConnectError("Connection failed")
     )
 
     with pytest.raises(httpx.ConnectError, match="Connection failed"):
@@ -142,7 +145,7 @@ async def test_request_connection_error(initial_client):
 @pytest.mark.anyio
 async def test_request_timeout(initial_client):
     initial_client.client.request = AsyncMock(
-    side_effect=httpx.TimeoutException("Request timed out")
+        side_effect=httpx.TimeoutException("Request timed out")
     )
 
     with pytest.raises(httpx.TimeoutException, match="Request timed out"):
@@ -152,6 +155,7 @@ async def test_request_timeout(initial_client):
             user_context="test-token",
             request_id="request-id",
         )
+
 
 @pytest.mark.anyio
 async def test_request_passes_request_id(initial_client):
@@ -165,6 +169,7 @@ async def test_request_passes_request_id(initial_client):
         user_context="test-token",
         request_id="request-id",
         params={"id": 123},
+        json=None,
     )
 
     initial_client._request.assert_awaited_once_with(
@@ -173,6 +178,7 @@ async def test_request_passes_request_id(initial_client):
         user_context="test-token",
         request_id="request-id",
         params={"id": 123},
+        json=None,
     )
 
 
