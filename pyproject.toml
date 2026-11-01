@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 
-name = "initial-client"
+name = "internal-client"
 version = "0.1.0"
 description = "Библиотека для внутреннего клиента"
 readme = "README.md"
