@@ -5,11 +5,11 @@ import httpx
 import jwt
 import pytest
 
-from src.initial_client import InitialClient
+from src.internal_client import InternalClient
 
 
 def test_initial_client_is_singleton(initial_client):
-    client = InitialClient(
+    client = InternalClient(
         base_url="http://another-url",
         service_id="service_id_2",
         service_token="service_token_2",

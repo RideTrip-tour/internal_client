@@ -1,3 +1,3 @@
-from .client import InitialClient
+from .client import InternalClient
 
-__all__ = ["InitialClient"]
+__all__ = ["InternalClient"]
