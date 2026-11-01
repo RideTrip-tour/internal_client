@@ -8,7 +8,7 @@ import jwt
 logger = logging.getLogger(__name__)
 
 
-class InitialClient:
+class InternalClient:
     _instance = None
 
     def __new__(cls, *args, **kwargs):
