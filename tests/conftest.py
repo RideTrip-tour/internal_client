@@ -8,14 +8,14 @@ if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
 
-from src.initial_client import InitialClient
+from src.internal_client import InternalClient
 
 
 @pytest.fixture
 def initial_client():
-    InitialClient._instance = None
+    InternalClient._instance = None
 
-    client = InitialClient(
+    client = InternalClient(
         base_url="http://localhost",
         service_id="service_id",
         service_token="service_token",
@@ -26,4 +26,4 @@ def initial_client():
 
     yield client
 
-    InitialClient._instance = None
+    InternalClient._instance = None

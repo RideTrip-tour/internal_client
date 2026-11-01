@@ -35,7 +35,7 @@ initial-client @ git+ssh://git@github.com/RideTrip-tour/internal_client.git
 ### Проверка установки
 После установки проверьте, что библиотека импортируется:
 ```bash
-python -c "from initial_client import InitialClient; print('Installation successful')"
+python -c "from initial_client import InternalClient; print('Installation successful')"
 ```
 Если команда завершилась без ошибок, библиотека доступна в текущем Python-окружении.
 
@@ -43,9 +43,9 @@ python -c "from initial_client import InitialClient; print('Installation success
 Для работы с библиотекой необходимо указать адрес API Gateway, идентификатор и токен сервиса, а также параметры формирования JWT.
 
 ```python
-from initial_client import InitialClient
+from initial_client import InternalClient
 
-initial_client = InitialClient(
+initial_client = InternalClient(
     base_url="http://gateway:8000",
     service_id="profile-service",
     service_token="your-service-token",
@@ -152,7 +152,7 @@ user_context = initial_client._build_user_context(claims)
 Можно настроить его при создании экземпляра:
 
 ```python
-initial_client = InitialClient(
+initial_client = InternalClient(
     base_url="http://gateway:8000",
     service_id="profile-service",
     service_token="your-service-token",
@@ -203,7 +203,7 @@ await initial_client.close()
 
 ## Особенности использования
 
-- `InitialClient` реализован как Singleton: в рамках одного процесса повторное создание объекта возвращает тот же экземпляр.
+- `InternalClient` реализован как Singleton: в рамках одного процесса повторное создание объекта возвращает тот же экземпляр.
 - Конфигурация применяется при первой инициализации экземпляра. Последующие вызовы конструктора не обновляют параметры существующего клиента.
 - Не рекомендуется создавать отдельный экземпляр клиента для каждого HTTP-запроса.
 - При использовании нескольких конфигураций или нескольких API Gateway текущая реализация Singleton требует доработки.
