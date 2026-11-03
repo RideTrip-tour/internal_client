@@ -54,28 +54,24 @@ class InternalClient:
         if not isinstance(claims, dict):
             raise TypeError("User claims must be a dictionary")
 
-        required_claims = ("id", "is_active", "is_superuser")
-        missing_claims = [key for key in required_claims if key not in claims]
+        user_id = claims.get("id") or claims.get("user_id") or claims.get("sub")
+        is_active = claims.get("is_active")
+        is_superuser = claims.get("is_superuser")
 
-        if missing_claims:
-            raise ValueError(
-                f"Required user claims are missing: {', '.join(missing_claims)}"
-            )
-
-        if claims["id"] is None or isinstance(claims["id"], bool):
+        if user_id is None or isinstance(user_id, bool):
             raise ValueError("Claim 'id' must be a valid identifier")
 
-        if not isinstance(claims["is_active"], bool):
-            raise TypeError("Claim 'is_active' must be a boolean")
+        if is_active is None or not isinstance(is_active, bool):
+            raise ValueError("Claim 'is_active' must be a boolean")
 
-        if not isinstance(claims["is_superuser"], bool):
-            raise TypeError("Claim 'is_superuser' must be a boolean")
+        if is_superuser is None or not isinstance(is_superuser, bool):
+            raise ValueError("Claim 'is_superuser' must be a boolean")
 
         return claims
 
     def _build_token_payload(self, claims: dict[str, Any]) -> dict[str, Any]:
         return {
-            "sub": str(claims["id"]),
+            "sub": str(claims.get("id") or claims.get("user_id") or claims.get("sub")),
             "is_active": claims["is_active"],
             "is_superuser": claims["is_superuser"],
             "aud": self.gateway_name,
