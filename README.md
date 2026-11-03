@@ -166,6 +166,7 @@ initial_client = InitialClient(
 
 ```python
 import httpx
+
 timeout = httpx.Timeout(
     connect=3.0,
     read=10.0,
