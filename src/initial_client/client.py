@@ -5,7 +5,6 @@ from typing import Any
 import httpx
 import jwt
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -40,14 +39,12 @@ class InitialClient:
             )
             logger.debug("Initial client initialized")
 
-
-    def _get_headers(self, user_context: str,  request_id: str) -> dict[str, str]:
+    def _get_headers(self, user_context: str, request_id: str) -> dict[str, str]:
         return {
             "X-Service-ID": self.service_id,
             "X-Service-Token": self.service_token,
             "X-User-Context": user_context,
-            "X-Request_ID": request_id,
-            
+            "X-Request-ID": request_id,
         }
 
     def _validate_claims(self, claims: dict[str, Any] | None) -> dict[str, Any]:
@@ -57,31 +54,24 @@ class InitialClient:
         if not isinstance(claims, dict):
             raise TypeError("User claims must be a dictionary")
 
-        required_claims = ("id", "is_active", "is_superuser")
-        missing_claims = [
-            key for key in required_claims
-            if key not in claims
-        ]
+        user_id = claims.get("id") or claims.get("user_id") or claims.get("sub")
+        is_active = claims.get("is_active")
+        is_superuser = claims.get("is_superuser")
 
-        if missing_claims:
-            raise ValueError(
-                f"Required user claims are missing: {', '.join(missing_claims)}"
-            )
-
-        if claims["id"] is None or isinstance(claims["id"], bool):
+        if user_id is None or isinstance(user_id, bool):
             raise ValueError("Claim 'id' must be a valid identifier")
 
-        if not isinstance(claims["is_active"], bool):
-            raise TypeError("Claim 'is_active' must be a boolean")
+        if is_active is None or not isinstance(is_active, bool):
+            raise ValueError("Claim 'is_active' must be a boolean")
 
-        if not isinstance(claims["is_superuser"], bool):
-            raise TypeError("Claim 'is_superuser' must be a boolean")
+        if is_superuser is None or not isinstance(is_superuser, bool):
+            raise ValueError("Claim 'is_superuser' must be a boolean")
 
         return claims
 
     def _build_token_payload(self, claims: dict[str, Any]) -> dict[str, Any]:
         return {
-            "sub": str(claims["id"]),
+            "sub": str(claims.get("id") or claims.get("user_id") or claims.get("sub")),
             "is_active": claims["is_active"],
             "is_superuser": claims["is_superuser"],
             "aud": self.gateway_name,
@@ -89,9 +79,7 @@ class InitialClient:
         }
 
     def _build_user_context(self, claims: dict[str, Any] | None) -> str:
-        payload = self._build_token_payload(
-            self._validate_claims(claims)
-        )
+        payload = self._build_token_payload(self._validate_claims(claims))
         return jwt.encode(
             payload,
             self.jwt_secret,
@@ -105,9 +93,9 @@ class InitialClient:
         user_context: str,
         request_id: str,
         params: dict[str, int] | None = None,
-        json: dict[str, Any] | None = None
+        json: dict[str, Any] | None = None,
     ) -> httpx.Response:
-        
+
         started_at = time.monotonic()
 
         logger.info(
@@ -121,10 +109,11 @@ class InitialClient:
                 method,
                 path,
                 headers=self._get_headers(
-                    user_context=user_context, request_id=request_id,
+                    user_context=user_context,
+                    request_id=request_id,
                 ),
                 params=params,
-                json=json
+                json=json,
             )
             elapsed = time.monotonic() - started_at
             response.raise_for_status()
@@ -162,7 +151,7 @@ class InitialClient:
             user_context=user_context,
             request_id=request_id,
             params=params,
-            json=json
+            json=json,
         )
 
     async def close(self) -> None:
