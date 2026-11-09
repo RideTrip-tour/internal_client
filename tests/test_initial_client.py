@@ -37,7 +37,7 @@ def test_get_headers(initial_client):
 
 def test_build_user_context_valid_claims(initial_client):
     claims = {
-        "id": 123,
+        "user_id": 123,
         "is_active": True,
         "is_superuser": False,
     }
